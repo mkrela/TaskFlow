@@ -11,4 +11,4 @@
 		<ProjectReference Include="..\TaskFlow.Domain\TaskFlow.Domain.csproj" />
 	</ItemGroup>
 
-</Project>w
+</Project>
