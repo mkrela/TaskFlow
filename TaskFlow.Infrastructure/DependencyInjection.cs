@@ -1,0 +1,22 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using TaskFlow.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+
+namespace TaskFlow.Infrastructure
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("TaskFlowDb")
+                ?? throw new InvalidOperationException("Connection string 'TaskFlowDb' introuvable.");
+
+            services.AddDbContext<TaskFlowDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            return services;
+        }
+    }
+}

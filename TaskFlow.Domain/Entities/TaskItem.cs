@@ -11,12 +11,12 @@ namespace TaskFlow.Domain.Entities
         public string Title { get; private set; } = string.Empty;
         private  string? Description { get; set; } = string.Empty;
         public Enums.TaskStatus Status { get; private set; } = Enums.TaskStatus.Todo;
-        public Enums.TaskPriority Priority { get; private set; } = TaskPriority.Medium;
+        public TaskPriority Priority { get; private set; } = TaskPriority.Medium;
         public DateTime? DueDate { get; private set; }
         public Guid ProjectId { get; private set; }
         public Guid CreatedByUserId { get; private set; }
 
-        public TaskItem() { }   // EF Core }
+        private TaskItem() { }   // EF Core }
 
         public TaskItem(string title, Guid projectId, Guid createdByUserId)
         {
