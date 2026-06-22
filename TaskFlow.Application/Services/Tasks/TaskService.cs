@@ -1,4 +1,5 @@
-﻿using TaskFlow.Application.Abstractions.Persistence;
+﻿using FluentValidation;
+using TaskFlow.Application.Abstractions.Persistence;
 using TaskFlow.Application.Abstractions.Services;
 using TaskFlow.Application.DTOs.Tasks;
 using TaskFlow.Domain.Entities;
@@ -9,14 +10,23 @@ namespace TaskFlow.Application.Services.Tasks;
 public sealed class TaskService : ITaskService
 {
     private readonly ITaskRepository _taskRepository;
+    private readonly IValidator<CreateTaskRequest> _createTaskValidator;
+    private readonly IValidator<UpdateTaskRequest> _updateTaskValidator;
 
-    public TaskService(ITaskRepository taskRepository)
+    public TaskService(
+        ITaskRepository taskRepository,
+        IValidator<CreateTaskRequest> createTaskValidator,
+        IValidator<UpdateTaskRequest> updateTaskValidator)
     {
         _taskRepository = taskRepository;
+        _createTaskValidator = createTaskValidator;
+        _updateTaskValidator = updateTaskValidator;
     }
 
     public async Task<TaskDto> CreateAsync(CreateTaskRequest request, CancellationToken cancellationToken = default)
     {
+        await _createTaskValidator.ValidateAndThrowAsync(request, cancellationToken);
+
         var task = new TaskItem(request.Title, request.ProjectId, request.CreatedByUserId);
         if (request.Description is not null || request.DueDate is not null)
         {
@@ -43,6 +53,8 @@ public sealed class TaskService : ITaskService
 
     public async Task<TaskDto?> UpdateAsync(Guid id, UpdateTaskRequest request, CancellationToken cancellationToken = default)
     {
+        await _updateTaskValidator.ValidateAndThrowAsync(request, cancellationToken);
+
         var task = await _taskRepository.GetByIdAsync(id, cancellationToken);
         if (task is null)
         {
