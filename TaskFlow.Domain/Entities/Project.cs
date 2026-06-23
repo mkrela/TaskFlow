@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TaskFlow.Domain.Entities
 {
@@ -10,13 +8,17 @@ namespace TaskFlow.Domain.Entities
         public string Name { get; private set; } = string.Empty;
         public Guid OwnerUserId { get; private set; }
 
-
         private Project() { } // EF CORE
 
         public Project(string name, Guid ownerUserId)
         {
             Name = name;
             OwnerUserId = ownerUserId;
+        }
+
+        public void Update(string name)
+        {
+            Name = name;
         }
     }
 }
