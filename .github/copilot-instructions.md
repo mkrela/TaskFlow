@@ -7,3 +7,4 @@
 
 ## Project-Specific Rules
 - Priorité actuelle demandée par l'utilisateur: terminer d'abord les dépendances entre couches avant de créer des entités ou des controllers.
+- L'interface `ITaskService` est définie dans le namespace `TaskFlow.Application.Services.Tasks` (fichier `TaskFlow.Application\Services\Tasks\ITaskService.cs`).

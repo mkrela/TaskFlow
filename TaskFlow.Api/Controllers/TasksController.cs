@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskFlow.Application.Abstractions.Services;
 using TaskFlow.Application.DTOs.Tasks;
+using TaskFlow.Application.Services.Tasks;
 
 namespace TaskFlow.Api.Controllers;
 
