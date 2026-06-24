@@ -1,0 +1,34 @@
+﻿@* File: TaskFlow.Client/Pages/TaskCreate.razor *@
+@page "/projects/{ProjectId:guid}/tasks/new"
+@using TaskFlow.Client.Models
+@inject TaskApi TaskApi
+@inject NavigationManager Nav
+
+<h3>Créer une tâche</h3>
+
+<EditForm Model="model" OnValidSubmit="Submit">
+    <InputText @bind-Value="model.Title" class="form-control" />
+    <ValidationMessage For="@(() => model.Title)" />
+    <textarea @bind="model.Description" class="form-control mt-2"></textarea>
+    <div class="mt-2">
+        <button class="btn btn-primary" type="submit">Créer</button>
+        <button class="btn btn-link" type="button" @onclick="Back">Annuler</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public Guid ProjectId { get; set; }
+    private CreateTaskModel model = new();
+    private readonly Guid createdBy = Guid.Empty; // remplacer par user courant
+
+    private async Task Submit()
+    {
+        var req = new CreateTaskRequest(model.Title ?? string.Empty, ProjectId, createdBy, model.Description);
+        var created = await TaskApi.CreateAsync(req);
+        Nav.NavigateTo($"/tasks/{created.Id}");
+    }
+
+    private void Back() => Nav.NavigateTo($"/projects/{ProjectId}/tasks");
+
+    private sealed class CreateTaskModel { public string? Title { get; set; } public string? Description { get; set; } }
+}

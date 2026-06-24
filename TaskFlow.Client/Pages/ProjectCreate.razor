@@ -1,0 +1,30 @@
+﻿@page "/projects/new"
+@using TaskFlow.Client.Models
+@inject TaskFlow.Client.Services.ProjectApi ProjectApi
+@inject NavigationManager Nav
+
+<h3>Créer un projet</h3>
+
+<EditForm Model="model" OnValidSubmit="Submit">
+    <InputText @bind-Value="model.Name" class="form-control" />
+    <ValidationMessage For="@(() => model.Name)" />
+    <div class="mt-2">
+        <button class="btn btn-primary" type="submit">Créer</button>
+        <button class="btn btn-link" type="button" @onclick="Back">Annuler</button>
+    </div>
+</EditForm>
+
+@code {
+    private CreateProjectRequestModel model = new();
+    private readonly Guid ownerId = Guid.Empty; // remplacer par user courant
+
+    private async Task Submit()
+    {
+        var req = new CreateProjectRequest(model.Name ?? string.Empty, ownerId);
+        var created = await ProjectApi.CreateAsync(req);
+        Nav.NavigateTo($"/projects/{created.Id}");
+    }
+
+    private void Back() => Nav.NavigateTo("/projects");
+    private sealed class CreateProjectRequestModel { public string? Name { get; set; } }
+}

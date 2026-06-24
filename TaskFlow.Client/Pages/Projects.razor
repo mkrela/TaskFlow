@@ -1,0 +1,44 @@
+﻿@page "/projects"
+@using TaskFlow.Client.Models
+@inject TaskFlow.Client.Services.ProjectApi ProjectApi
+@inject NavigationManager Nav
+
+<h3>Projets</h3>
+
+@if (projects is null)
+{
+    <p>Chargement…</p>
+}
+else if (projects.Count == 0)
+{
+    <p>Aucun projet</p>
+}
+else
+{
+    <ul>
+        @foreach (var p in projects)
+        {
+            <li>
+                <a href="#" @onclick="@(() => NavigateToProject(p.Id))">@p.Name</a>
+                &nbsp;—&nbsp;
+                <a href="#" @onclick="@(() => NavigateToProjectTasks(p.Id))">Tâches</a>
+            </li>
+        }
+    </ul>
+}
+
+<button class="btn btn-primary" @onclick="Create">Nouveau projet</button>
+
+@code {
+    private List<ProjectDto>? projects;
+    private readonly Guid ownerId = Guid.Empty; // remplacer par l'utilisateur courant
+
+    protected override async Task OnInitializedAsync()
+    {
+        projects = await ProjectApi.GetByOwnerAsync(ownerId);
+    }
+
+    private void Create() => Nav.NavigateTo("/projects/new");
+    private void NavigateToProject(Guid id) => Nav.NavigateTo($"/projects/{id}");
+    private void NavigateToProjectTasks(Guid id) => Nav.NavigateTo($"/projects/{id}/tasks");
+}
