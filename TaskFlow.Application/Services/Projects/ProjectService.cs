@@ -1,4 +1,9 @@
-﻿using FluentValidation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentValidation;
 using TaskFlow.Application.Abstractions.Persistence;
 using TaskFlow.Application.DTOs.Projects;
 using TaskFlow.Domain.Entities;
@@ -23,6 +28,7 @@ public sealed class ProjectService : IProjectService
 
     public async Task<ProjectDto> CreateAsync(CreateProjectRequest request, CancellationToken cancellationToken = default)
     {
+        // La résolution de l'OwnerUserId (claims / auth) doit être faite en amont (contrôleur ou middleware).
         await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
 
         var project = new Project(request.Name, request.OwnerUserId);

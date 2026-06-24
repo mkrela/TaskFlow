@@ -1,0 +1,37 @@
+﻿@* File: TaskFlow.Client/Pages/TaskDetails.razor *@
+@page "/tasks/{Id:guid}"
+@using TaskFlow.Client.Models
+@inject TaskApi TaskApi
+@inject NavigationManager Nav
+
+<h3>Détails tâche</h3>
+
+@if (task is null)
+{
+    <p>Chargement…</p>
+}
+else
+{
+    <div class="card p-3">
+        <h4>@task.Title</h4>
+        <p>@task.Description</p>
+        <p><strong>Statut:</strong> @task.Status</p>
+        <button class="btn btn-success" @onclick="MarkDone">Marquer comme terminé</button>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private TaskDto? task;
+
+    protected override async Task OnInitializedAsync()
+    {
+        task = await TaskApi.GetByIdAsync(Id);
+    }
+
+    private async Task MarkDone()
+    {
+        var ok = await TaskApi.ChangeStatusAsync(Id, new ChangeTaskStatusRequest("Done"));
+        if (ok) task = await TaskApi.GetByIdAsync(Id);
+    }
+}

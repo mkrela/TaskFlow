@@ -1,4 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using TaskFlow.Application.Services.Projects;
 using TaskFlow.Application.DTOs.Projects;
 
@@ -6,19 +11,40 @@ namespace TaskFlow.Api.Controllers;
 
 [ApiController]
 [Route("api/projects")]
+[Authorize]
 public sealed class ProjectsController : ControllerBase
 {
     private readonly IProjectService _projectService;
+    private readonly ILogger<ProjectsController> _logger;
 
-    public ProjectsController(IProjectService projectService)
+    public ProjectsController(IProjectService projectService, ILogger<ProjectsController> logger)
     {
         _projectService = projectService;
+        _logger = logger;
     }
 
     [HttpPost]
     public async Task<ActionResult<ProjectDto>> Create([FromBody] CreateProjectRequest request, CancellationToken cancellationToken)
     {
-        var project = await _projectService.CreateAsync(request, cancellationToken);
+        _logger.LogInformation("Create called. IsAuthenticated={IsAuthenticated}", User?.Identity?.IsAuthenticated);
+        _logger.LogDebug("NameIdentifier claim={NameId}", User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        CreateProjectRequest finalRequest = request;
+
+        if (request.OwnerUserId == Guid.Empty)
+        {
+            var sub = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(sub, out var ownerId))
+                return Unauthorized(); // retourner 401 quand pas authentifié / claim manquant
+
+            finalRequest = new CreateProjectRequest
+            {
+                Name = request.Name,
+                OwnerUserId = ownerId
+            };
+        }
+
+        var project = await _projectService.CreateAsync(finalRequest, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = project.Id }, project);
     }
 

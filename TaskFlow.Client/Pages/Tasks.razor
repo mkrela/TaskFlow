@@ -1,0 +1,42 @@
+﻿@page "/projects/{ProjectId:guid}/tasks"
+@using TaskFlow.Client.Models
+@inject TaskFlow.Client.Services.TaskApi TaskApi
+@inject NavigationManager Nav
+
+<h3>Tâches du projet</h3>
+
+@if (tasks is null)
+{
+    <p>Chargement…</p>
+}
+else if (tasks.Count == 0)
+{
+    <p>Aucune tâche</p>
+}
+else
+{
+    <ul>
+        @foreach (var t in tasks)
+        {
+            <li>
+                <a href="#" @onclick="@(() => NavigateToTask(t.Id))">@t.Title</a>
+                &nbsp;— <small>@t.Status</small>
+            </li>
+        }
+    </ul>
+}
+
+<button class="btn btn-primary" @onclick="Create">Nouvelle tâche</button>
+
+@code {
+    [Parameter] public Guid ProjectId { get; set; }
+    private List<TaskDto>? tasks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tasks = await TaskApi.GetByProjectAsync(ProjectId);
+    }
+
+    private void Create() => Nav.NavigateTo($"/projects/{ProjectId}/tasks/new");
+    private void NavigateToTask(Guid id) => Nav.NavigateTo($"/tasks/{id}");
+}

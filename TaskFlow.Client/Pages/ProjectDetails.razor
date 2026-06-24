@@ -1,0 +1,33 @@
+﻿@page "/projects/{Id:guid}"
+@using TaskFlow.Client.Models
+@inject TaskFlow.Client.Services.ProjectApi ProjectApi
+@inject NavigationManager Nav
+
+<h3>Détails du projet</h3>
+
+@if (project is null)
+{
+    <p>Chargement…</p>
+}
+else
+{
+    <div class="card p-3">
+        <h4>@project.Name</h4>
+        <p><strong>Owner:</strong> @project.OwnerUserId</p>
+        <button class="btn btn-secondary" @onclick="@(() => NavigateToProjectTasks(Id))">Voir les tâches</button>
+        <button class="btn btn-outline-primary ms-2" @onclick="Edit">Modifier</button>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private ProjectDto? project;
+
+    protected override async Task OnInitializedAsync()
+    {
+        project = await ProjectApi.GetByIdAsync(Id);
+    }
+
+    private void Edit() => Nav.NavigateTo($"/projects/{Id}/edit");
+    private void NavigateToProjectTasks(Guid id) => Nav.NavigateTo($"/projects/{id}/tasks");
+}
